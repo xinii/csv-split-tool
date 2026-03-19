@@ -19,7 +19,10 @@ df = df.fillna('')
 result = []
 
 for _, row in df.iterrows():
-    if row.iloc[4].strip() == '02025160':
+    value = str(row.iloc[4]).strip().replace('　', '')
+    value = value.zfill(8)
+
+    if value == '02025160':
         row1 = row.copy()
         row1.iloc[4] = '01064773'
 
