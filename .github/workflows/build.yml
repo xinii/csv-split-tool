@@ -1,0 +1,47 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install deps
+      run: |
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build
+      run: |
+        pyinstaller --onefile --hidden-import=openpyxl csv_split.py
+
+    - name: Rename
+      run: |
+        mkdir release
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          cp dist/csv_split.exe release/csv_split_windows.exe
+        else
+          cp dist/csv_split release/csv_split_macos
+        fi
+      shell: bash
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: release/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
