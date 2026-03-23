@@ -4,12 +4,12 @@ df = pd.read_excel('input.xlsx')
 
 # ⭐ 先修正日期列
 last_col = df.columns[-1]
-df[last_col] = pd.to_datetime(
-    df[last_col],
-    origin='1899-12-30',
-    unit='D',
-    errors='coerce'
-).dt.strftime('%Y年%m月%d日')
+
+df[last_col] = df[last_col].apply(
+    lambda x: pd.to_datetime(x, unit='D', origin='1899-12-30')
+    if isinstance(x, (int, float))
+    else pd.to_datetime(x, errors='coerce')
+)
 
 # ⭐ 再处理其它列
 for col in df.columns[:-1]:
